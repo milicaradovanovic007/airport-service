@@ -1,0 +1,21 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!DOCTYPE hibernate-mapping PUBLIC
+    "-//Hibernate/Hibernate Mapping DTD 3.0//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+<hibernate-mapping>
+
+    <class name="com.milicaradovanovic.daon.entity.FlightEntity" table="flight" schema="mysql">
+        <id name="flightNumber">
+            <column name="flight_number" sql-type="int(11)"/>
+        </id>
+        <property name="airline">
+            <column name="airline" sql-type="varchar(50)" length="50"/>
+        </property>
+        <property name="gateId">
+            <column name="gate_id" sql-type="int(11)"/>
+        </property>
+        <many-to-one name="gateByGateId" class="com.milicaradovanovic.daon.entity.GateEntity">
+            <column name="gate_id"/>
+        </many-to-one>
+    </class>
+</hibernate-mapping>
