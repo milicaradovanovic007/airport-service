@@ -29,3 +29,6 @@ mvn spring-boot:run
 
 ### Database
 Alternatively you can run `airport.sql` from the chosen DB editor. Running this script will provide you already populated `airport` database.
+
+### Testing
+In order to test the service, you can import the Insomnia_airport file to the Insomnia REST Client application
