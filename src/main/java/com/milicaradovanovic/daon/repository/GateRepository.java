@@ -11,4 +11,9 @@ public interface GateRepository extends CrudRepository<GateEntity, Integer> {
     Optional<GateEntity> findById(int id);
 
     Collection<GateEntity> findAllByAvailableTimeStartBeforeAndAvailableTimeEndAfter(Time from, Time to);
+
+    Collection<GateEntity> findAllByStatusIsNot(byte statusId);
+
+    Collection<GateEntity> findAllByStatusIsNotAndAvailableTimeStartBeforeAndAvailableTimeEndAfter(byte statusId,
+                                                                                                   Time from, Time to);
 }

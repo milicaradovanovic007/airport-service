@@ -42,10 +42,11 @@ public class WebSecurityConfiguration extends WebSecurityConfigurerAdapter {
         http.authorizeRequests()
                 .antMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                 .antMatchers("/auth/login").permitAll()
-                .antMatchers("/flight/{flightNumber}/assigned-gate").permitAll()
+                .antMatchers("/flight/{flightNumber}/gate-info").permitAll()
                 .antMatchers("/gate/{gateId}/info").permitAll()
                 .antMatchers("/gate/{gateId}/status").permitAll()
                 .antMatchers("/gate/available-gates").permitAll()
+                .antMatchers("/flight/{flightNumber}/assign-gate").permitAll()
 
                 // Disallow everything else..
                 .anyRequest().authenticated();
