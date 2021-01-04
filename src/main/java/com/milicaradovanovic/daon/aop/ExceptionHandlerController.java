@@ -11,6 +11,7 @@ import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.security.authentication.InsufficientAuthenticationException;
 import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.MissingServletRequestParameterException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.client.HttpServerErrorException;
@@ -81,6 +82,12 @@ public class ExceptionHandlerController {
     @ExceptionHandler(Exception.class)
     public void handleException(Exception ex, HttpServletResponse res) throws IOException {
         res.sendError(HttpStatus.INTERNAL_SERVER_ERROR.value(), "Something went wrong");
+    }
+
+    @ExceptionHandler
+    public ResponseEntity<ResponseDTO> handleMissingServletRequestParameterException(MissingServletRequestParameterException ex) {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST)
+                .body(new ResponseDTO(true, StatusEnum.QUERY_VALIDATION_ERROR, ex.getMessage()));
     }
 
 }
