@@ -63,11 +63,16 @@ public class GateController {
                                                         Authentication authentication) {
 //        AirportUserEntity airportUser = this.airportUserService.getCurrentUser(authentication);
 
-        GateEntity gateEntity = this.gateService.changeAvailability(gateId);
+        Object response = this.gateService.changeAvailability(gateId);
 
-        if (gateEntity == null) {
+        if (response == null) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
                     new ResponseDTO<>(true, StatusEnum.RESOURCE_NOT_FOUND, null));
+        }
+
+        if (response.equals(false)) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+                    new ResponseDTO<>(true, StatusEnum.CANNOT_UPDATE_GATE, null));
         }
 
         return ResponseEntity.status(HttpStatus.OK)
@@ -79,7 +84,7 @@ public class GateController {
     public ResponseEntity<ResponseDTO> getGateInformationAtTime(Authentication authentication) {
 
 //        AirportUserEntity airportUser = this.airportUserService.getCurrentUser(authentication);
-        Collection<GateEntity> gateEntityCollection = this.gateService.getAvailableGatesAtTime();
+        Collection<GateEntity> gateEntityCollection = this.gateService.getAvailableGatesAtTime(0);
 
         if (gateEntityCollection.isEmpty()) {
             return ResponseEntity.status(HttpStatus.OK).body(

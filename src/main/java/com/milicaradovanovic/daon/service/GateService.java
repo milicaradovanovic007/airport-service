@@ -1,6 +1,8 @@
 package com.milicaradovanovic.daon.service;
 
+import com.milicaradovanovic.daon.entity.FlightEntity;
 import com.milicaradovanovic.daon.entity.GateEntity;
+import com.milicaradovanovic.daon.repository.FlightRepository;
 import com.milicaradovanovic.daon.repository.GateRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,10 +16,12 @@ import java.util.Optional;
 @Service
 public class GateService {
     private GateRepository gateRepository;
+    private FlightRepository flightRepository;
 
     @Autowired
-    public GateService(GateRepository gateRepository) {
+    public GateService(GateRepository gateRepository, FlightRepository flightRepository) {
         this.gateRepository = gateRepository;
+        this.flightRepository = flightRepository;
     }
 
     public Optional<GateEntity> getGateById(int gateId) {
@@ -25,7 +29,7 @@ public class GateService {
                 .findById(gateId);
     }
 
-    public GateEntity changeAvailability(int gateId) {
+    public Object changeAvailability(int gateId) {
 
         Optional<GateEntity> optionalGateEntity = this.gateRepository.findById(gateId);
         if (optionalGateEntity.isEmpty()) {
@@ -33,17 +37,35 @@ public class GateService {
         }
 
         GateEntity gateEntity = optionalGateEntity.get();
-        gateEntity.setStatus(gateEntity.getStatus() == (byte) 1 ? (byte) 0 : (byte) 1);
 
-        return this.gateRepository.save(gateEntity);
+        if (gateEntity.getStatus() == (byte) 0) {
+            // check if there is a flight with assigned gate
+
+            Collection<FlightEntity> flightEntities = this.flightRepository.findAllByGateByGateId(gateEntity);
+            if (flightEntities.size() != 0) {
+                // we cannot update this gate
+
+                return false;
+            }
+
+            gateEntity.setStatus((byte) 1);
+            this.gateRepository.save(gateEntity);
+
+            return true;
+        } else {
+            // gate already available
+
+            return false;
+        }
     }
 
-    public Collection<GateEntity> getAvailableGatesAtTime() {
+    public Collection<GateEntity> getAvailableGatesAtTime(int statusId) {
         LocalTime from = LocalTime.now(ZoneId.of("UTC"));
         LocalTime to = LocalTime.now(ZoneId.of("UTC"));
 
         return this.gateRepository
-                .findAllByAvailableTimeStartBeforeAndAvailableTimeEndAfter(Time.valueOf(from), Time.valueOf(to));
+                .findAllByStatusIsNotAndAvailableTimeStartBeforeAndAvailableTimeEndAfter
+                        ((byte) statusId, Time.valueOf(from), Time.valueOf(to));
     }
 
     public GateEntity changeAvailabilityTime(int gateId, LocalTime start, LocalTime end) {
@@ -58,5 +80,28 @@ public class GateService {
         gateEntity.setAvailableTimeEnd(Time.valueOf(end));
 
         return this.gateRepository.save(gateEntity);
+    }
+
+    public Optional<GateEntity> getFirstAvailableGate(int statusId, boolean isExtra) {
+
+        Collection<GateEntity> availableGates;
+        if (isExtra) {
+            LocalTime from = LocalTime.now(ZoneId.of("UTC"));
+            LocalTime to = LocalTime.now(ZoneId.of("UTC"));
+
+            availableGates = this.gateRepository
+                    .findAllByStatusIsNotAndAvailableTimeStartBeforeAndAvailableTimeEndAfter((byte) statusId,
+                            Time.valueOf(from), Time.valueOf(to));
+        } else {
+            availableGates = this.gateRepository
+                    .findAllByStatusIsNot((byte) statusId);
+        }
+
+        if (availableGates.size() == 0) {
+            return Optional.empty();
+        }
+
+        return availableGates.stream().findFirst();
+
     }
 }
