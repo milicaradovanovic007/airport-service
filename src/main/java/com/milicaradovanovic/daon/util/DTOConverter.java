@@ -25,8 +25,12 @@ public class DTOConverter {
     public FlightDTO toFlightDTO(FlightEntity flightEntity) {
         FlightDTO flightDTO = modelMapper.map(flightEntity, FlightDTO.class);
 
-        GateDTO gateDTO = this.toGateDTO(flightEntity.getGateByGateId());
-        flightDTO.setGate(gateDTO);
+        if (flightEntity.getGateByGateId() != null) {
+            GateDTO gateDTO = this.toGateDTO(flightEntity.getGateByGateId());
+            flightDTO.setGate(gateDTO);
+        } else {
+            flightDTO.setGate(null);
+        }
 
         return flightDTO;
     }

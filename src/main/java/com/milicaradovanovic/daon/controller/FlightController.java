@@ -90,6 +90,11 @@ public class FlightController {
 
         FlightDTO flightDTO = this.converter.toFlightDTO(flightEntity);
 
+        if (flightDTO.getGate() == null) {
+            return ResponseEntity.status(HttpStatus.OK).body(new ResponseDTO<>(StatusEnum.NO_GATE_ASSIGNED,
+                    null));
+        }
+
         return ResponseEntity.status(HttpStatus.OK).body(new ResponseDTO<>(StatusEnum.RESOURCE_FOUND,
                 flightDTO.getGate()));
     }
